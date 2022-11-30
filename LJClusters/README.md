@@ -5,7 +5,7 @@ A simple Lennard-Jones cluster model.
 ## Usage
 
 ```julia
-(@v1.8) pkg> add https://github.com/sunoru/mosimo-examples.git:subdir=LJClusters
+(@v1.8) pkg> add https://github.com/sunoru/mosimo-examples.git:LJClusters
 
 julia> using MosimoBase, LJClusters
 

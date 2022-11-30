@@ -8,7 +8,7 @@ Models:
 Use the `subdir` feature to add a specific example to your environment:
 
 ```julia
-(@v1.8) pkg> add https://github.com/sunoru/mosimo-examples.git:subdir=LJClusters
+(@v1.8) pkg> add https://github.com/sunoru/mosimo-examples.git:LJClusters
 ```
 
 ## License
