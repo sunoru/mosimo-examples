@@ -1,0 +1,8 @@
+name = "LJClusters"
+uuid = "df88aa73-8e6b-4807-b53c-a9488ae5f379"
+authors = ["Sunoru <s@sunoru.com>"]
+version = "0.1.0"
+
+[deps]
+LennardJones = "d8a96929-0be6-44df-b03a-619eb7e9790e"
+MosimoBase = "a39d5f18-f8b1-4777-8f97-f1f91469dbd0"

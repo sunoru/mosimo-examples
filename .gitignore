@@ -1,0 +1,12 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+
+.idea/
+.vscode/
+*.swp
+build/
+
+test/**/out/
+
+Manifest.toml
