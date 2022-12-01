@@ -18,6 +18,7 @@ Base.@kwdef struct LJCluster{T} <: MosiModel{T}
 end
 LJCluster2D(N; kwargs...) = LJCluster{Vector2}(; N, kwargs...)
 LJCluster3D(N; kwargs...) = LJCluster{Vector3}(; N, kwargs...)
+MosimoBase.name(model::LJCluster) = "LJCluster-$(is_3d(model) ? "3D" : "2D")"
 
 function _V(rs, ϵ, σ, dist, r_cutoff)
     N = length(rs)
@@ -78,5 +79,41 @@ MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} =
 MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}, i) where {T} = _∇V(
     rs, i, model.ϵ, model.σ, distance_function(model), model.r_cutoff
 )
+MosimoBase.kinetic_energy(s::ConfigurationSystem{T}, ::LJCluster{T}) where T = 0.0
+function MosimoBase.kinetic_energy(s::MosiSystem{T}, ::LJCluster{T}) where T <: MosiVector
+    vs = velocities(s)
+    sum(norm_sqr.(vs)) / 2
+end
+
+# Use a simple packing.
+function MosimoBase.generate_initial(
+    model::LJCluster{T}, ::Type{ConfigurationSystem};
+    rng::AbstractRNG=GLOBAL_RNG
+) where T
+    N = model.N
+    box = model.box
+    tmp_box = if box ≡ zero(T)
+        L = model.σ * MosimoBase.ceil_root(N, length(T))
+        ones(T) * L
+    else
+        box
+    end
+    rs = collect(simple_pack(tmp_box, N))
+    ConfigurationSystem(rs; box)
+end
+
+function MosimoBase.generate_initial(
+    model::LJCluster{T}, ::Type{MolecularSystem};
+    rng::AbstractRNG=GLOBAL_RNG
+) where T
+    conf = generate_initial(model, ConfigurationSystem; rng)
+    box = model.box
+    rs = positions(conf)
+    vs = randn(rng, Vector3, length(rs))
+    # Remove center-of-mass momentum
+    vs_cm = mean(vs)
+    vs = Vector3[v - vs_cm for v in vs]
+    MolecularSystem(rs, vs, box)
+end
 
 end # module
