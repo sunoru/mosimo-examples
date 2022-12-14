@@ -6,4 +6,3 @@ version = "0.1.0"
 [deps]
 LennardJones = "d8a96929-0be6-44df-b03a-619eb7e9790e"
 MosimoBase = "a39d5f18-f8b1-4777-8f97-f1f91469dbd0"
-MosimoMD = "cd60d81d-79df-4a8f-b7fa-e1e735480e67"
