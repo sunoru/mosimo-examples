@@ -47,7 +47,7 @@ function _∇V(rs, ϵ, σ, dist, r_cutoff)
     ∇V = zeros(eltype(rs), N)
     @inbounds for i in 1:N-1
         for j in i+1:N
-            f_ij = fij(i, j)
+            f_ij = fij(rs[i], rs[j])
             ∇V[i] -= f_ij
             ∇V[j] += f_ij
         end
