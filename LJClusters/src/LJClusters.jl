@@ -19,6 +19,7 @@ end
 LJCluster2D(N; kwargs...) = LJCluster{Vector2}(; N, kwargs...)
 LJCluster3D(N; kwargs...) = LJCluster{Vector3}(; N, kwargs...)
 MosimoBase.name(model::LJCluster) = "LJCluster-$(is_3d(model) ? "3D" : "2D")"
+MosimoBase.natoms(model::LJCluster) = model.N
 
 function _V(rs, ϵ, σ, dist, r_cutoff)
     N = length(rs)
@@ -84,6 +85,7 @@ function MosimoBase.kinetic_energy(s::MosiSystem{T}, ::LJCluster{T}) where T <: 
     vs = velocities(s)
     sum(norm_sqr.(vs)) / 2
 end
+MosimoBase.degree_of_freedom(model::LJCluster) = (is_3d(model) ? 3 : 2) * natoms(model)
 
 # Use a simple packing.
 function MosimoBase.generate_initial(
