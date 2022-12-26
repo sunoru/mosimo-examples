@@ -74,10 +74,10 @@ end
 MosimoBase.potential_energy_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} = _V(
     rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff
 )
-MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} = _∇V(
+MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} = -_∇V(
     rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff
 )
-MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}, i) where {T} = _∇V(
+MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}, i) where {T} = -_∇V(
     rs, i, model.ϵ, model.σ, distance_function(model), model.r_cutoff
 )
 MosimoBase.kinetic_energy(s::ConfigurationSystem{T}, ::LJCluster{T}) where T = 0.0
@@ -85,7 +85,7 @@ function MosimoBase.kinetic_energy(s::MosiSystem{T}, ::LJCluster{T}) where T <: 
     vs = velocities(s)
     sum(norm_sqr.(vs)) / 2
 end
-MosimoBase.degree_of_freedom(model::LJCluster) = (is_3d(model) ? 3 : 2) * natoms(model)
+MosimoBase.degree_of_freedom(_::MosiSystem, model::LJCluster) = (is_3d(model) ? 3 : 2) * natoms(model)
 
 # Use a simple packing.
 function MosimoBase.generate_initial(
