@@ -38,24 +38,24 @@ function _V(rs, ϵ, σ, dist, r_cutoff)
     V
 end
 
-function _∇V(rs, ϵ, σ, dist, r_cutoff)
+function _∇V(rs, ϵ, σ, dist, r_cutoff, is_force, ∇V = similar(rs))
     N = length(rs)
     fij = if r_cutoff > 0
         (ri, rj) -> LennardJones.lj_potential_fij_cutoff(ri, rj; ϵ, σ, dist, r_cutoff)
     else
         (ri, rj) -> LennardJones.lj_potential_fij(ri, rj; ϵ, σ, dist)
     end
-    ∇V = zeros(eltype(rs), N)
+    fill!(∇V, zero(eltype(rs)))
     @inbounds for i in 1:N-1
         for j in i+1:N
             f_ij = fij(rs[i], rs[j])
-            ∇V[i] -= f_ij
-            ∇V[j] += f_ij
+            ∇V[i] += is_force ? f_ij : -f_ij
+            ∇V[j] += is_force ? -f_ij : f_ij
         end
     end
     ∇V
 end
-function _∇V(rs, i, ϵ, σ, dist, r_cutoff)
+function _∇Vi(rs, i, ϵ, σ, dist, r_cutoff)
     N = length(rs)
     fij = if r_cutoff > 0
         (ri, rj) -> LennardJones.lj_potential_fij_cutoff(ri, rj; ϵ, σ, dist, r_cutoff)
@@ -74,11 +74,14 @@ end
 MosimoBase.potential_energy_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} = _V(
     rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff
 )
-MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}) where {T} = -_∇V(
-    rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff
+MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}; inplace=similar(rs)) where {T} = _∇V(
+    rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff, true, inplace
 )
-MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}, i) where {T} = -_∇V(
+MosimoBase.force_function(model::LJCluster{T}, rs::AbstractArray{T}, i) where {T} = -_∇Vi(
     rs, i, model.ϵ, model.σ, distance_function(model), model.r_cutoff
+)
+MosimoBase.potential_energy_gradients(model::LJCluster{T}, rs::AbstractArray{T}; inplace=similar(rs)) where {T} = _∇V(
+    rs, model.ϵ, model.σ, distance_function(model), model.r_cutoff, false, inplace
 )
 MosimoBase.kinetic_energy(s::ConfigurationSystem{T}, ::LJCluster{T}) where T = 0.0
 function MosimoBase.kinetic_energy(s::MosiSystem{T}, ::LJCluster{T}) where T <: MosiVector
