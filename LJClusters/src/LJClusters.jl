@@ -107,18 +107,4 @@ function MosimoBase.generate_initial(
     ConfigurationSystem(rs; box)
 end
 
-function MosimoBase.generate_initial(
-    model::LJCluster{T}, ::Type{MolecularSystem};
-    rng::AbstractRNG=GLOBAL_RNG
-) where T
-    conf = generate_initial(model, ConfigurationSystem; rng)
-    box = model.box
-    rs = positions(conf)
-    vs = randn(rng, Vector3, length(rs))
-    # Remove center-of-mass momentum
-    vs_cm = mean(vs)
-    vs = Vector3[v - vs_cm for v in vs]
-    MolecularSystem(rs, vs, box)
-end
-
 end # module
